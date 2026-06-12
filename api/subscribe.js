@@ -32,6 +32,7 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
+    console.log("DEBUG: Missing SUPABASE_URL or SUPABASE_ANON_KEY in environment variables.");
     return res.status(200).json({ 
       success: true, 
       info: "Waitlist email validated locally. Supabase credentials not configured in Vercel yet."
@@ -56,9 +57,12 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
+      const errText = await response.text();
+      console.error(`DEBUG: Supabase API returned status: ${response.status}`, errText);
       throw new Error(`Supabase API returned status: ${response.status}`);
     }
 
+    console.log(`DEBUG: Successfully saved email ${cleanEmail} to Supabase!`);
     return res.status(200).json({ success: true });
 
   } catch (error) {
